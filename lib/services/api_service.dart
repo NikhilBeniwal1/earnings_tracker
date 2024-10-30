@@ -22,7 +22,7 @@ class ApiService {
   }
 
   static Future<String> fetchEarningsTranscript(
-      String ticker, int year, int quarter) async {
+      String ticker, String year, int quarter) async {
     final url = Uri.parse(
         'https://api.api-ninjas.com/v1/earningstranscript?ticker=$ticker&year=$year&quarter=$quarter');
 
