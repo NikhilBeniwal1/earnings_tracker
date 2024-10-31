@@ -15,6 +15,9 @@ class TranscriptScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Transcript for $ticker"),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: FutureBuilder(
         future: earningsProvider.fetchEarningsTranscript(ticker, date),

@@ -11,16 +11,22 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Earnings Tracker"),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextField(
                 controller: _tickerController,
-                decoration: InputDecoration(labelText: "Enter Company Ticker"),
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    labelText: "Enter Company Ticker"),
+                
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -39,6 +45,11 @@ class HomeScreen extends StatelessWidget {
                     });
                   }
                 },
+                style: ElevatedButton.styleFrom(
+
+                 backgroundColor:  Colors.blue, // Background color
+                  foregroundColor:  Colors.white, // Foreground color
+                ),
                 child: Text("Show Earnings Chart"),
               ),
               SizedBox(height: 20),

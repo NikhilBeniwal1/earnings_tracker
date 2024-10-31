@@ -20,14 +20,17 @@ class ChartScreen extends StatelessWidget {
 
     for (int i = 0; i < earningsData.length; i++) {
       final data = earningsData[i];
-      dateLabels.add(data.pricedate); // Use pricedate property
-      actualEpsData.add(FlSpot(i.toDouble(), data.actualEps)); // Access actualEps property
-      estimatedEpsData.add(FlSpot(i.toDouble(), data.estimatedEps)); // Access estimatedEps property
+      dateLabels.add(data.pricedate);
+      actualEpsData.add(FlSpot(i.toDouble(), data.actualEps));
+      estimatedEpsData.add(FlSpot(i.toDouble(), data.estimatedEps));
     }
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Earnings Chart for $ticker"),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: earningsData.isEmpty
           ? Center(child: CircularProgressIndicator())
@@ -47,27 +50,37 @@ class ChartScreen extends StatelessWidget {
                 Icon(Icons.circle, color: Colors.blue, size: 16),
               ],
             ),
-
             SizedBox(height: 20),
             Expanded(
               child: LineChart(
                 LineChartData(
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        interval: null, // Let it auto-choose based on data
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toStringAsFixed(1), // Format Y-axis values for readability
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.black,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 40,
-                        interval: 1, // Show every label at 1 interval
+                        interval: 1, // Show every data point label on X-axis
                         getTitlesWidget: (value, meta) {
                           int index = value.toInt();
                           if (index >= 0 && index < dateLabels.length) {
-                            // Only show selected labels to avoid crowding
-                            return (index % 2 == 0) // Show every 2nd date
-                                ? Transform.rotate(
-                              angle: -0.5, // Rotate the text slightly
+                            return Transform.rotate(
+                              angle: -0.5, // Rotate labels to prevent overlap
                               child: Text(
                                 dateLabels[index],
                                 style: TextStyle(
@@ -75,8 +88,7 @@ class ChartScreen extends StatelessWidget {
                                   color: Colors.black,
                                 ),
                               ),
-                            )
-                                : Container();
+                            );
                           }
                           return Container();
                         },
@@ -93,12 +105,11 @@ class ChartScreen extends StatelessWidget {
                       barWidth: 2,
                       dotData: FlDotData(
                         show: true,
-                        getDotPainter: (spot, percent, barData, index) =>
-                            FlDotCirclePainter(
-                              radius: 4,
-                              color: Colors.blue,
-                              strokeColor: Colors.white,
-                            ),
+                        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                          radius: 4,
+                          color: Colors.blue,
+                          strokeColor: Colors.white,
+                        ),
                       ),
                       belowBarData: BarAreaData(show: false),
                     ),
@@ -109,19 +120,17 @@ class ChartScreen extends StatelessWidget {
                       barWidth: 2,
                       dotData: FlDotData(
                         show: true,
-                        getDotPainter: (spot, percent, barData, index) =>
-                            FlDotCirclePainter(
-                              radius: 4,
-                              color: Colors.orange,
-                              strokeColor: Colors.white,
-                            ),
+                        getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                          radius: 4,
+                          color: Colors.orange,
+                          strokeColor: Colors.white,
+                        ),
                       ),
                       belowBarData: BarAreaData(show: false),
                     ),
                   ],
                   lineTouchData: LineTouchData(
                     touchTooltipData: LineTouchTooltipData(
-                     // getTooltipColor: Colors.blueAccent,
                       getTooltipItems: (List<LineBarSpot> touchedSpots) {
                         return touchedSpots.map((spot) {
                           final dataIndex = spot.x.toInt();
@@ -134,23 +143,19 @@ class ChartScreen extends StatelessWidget {
                       },
                     ),
                     touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
-                      if (!event.isInterestedForInteractions || touchResponse == null || touchResponse.lineBarSpots == null) {
-                        return;
-                      }
-                      final spot = touchResponse.lineBarSpots!.first;
-                      final dataIndex = spot.x.toInt();
-                      final data = earningsData[dataIndex];
-
-                      // Navigate to a new screen with the transcript
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TranscriptScreen(
-                            date: data.pricedate,
-                            ticker: ticker,
+                      if (event is FlTapUpEvent && touchResponse != null && touchResponse.lineBarSpots != null) {
+                        final spot = touchResponse.lineBarSpots!.first;
+                        final dataIndex = spot.x.toInt();
+                        final data = earningsData[dataIndex];
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => TranscriptScreen(
+                              date: data.pricedate,
+                              ticker: ticker,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                     handleBuiltInTouches: true,
                   ),
